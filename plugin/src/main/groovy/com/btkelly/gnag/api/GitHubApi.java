@@ -78,24 +78,7 @@ public class GitHubApi {
 
     public void postUpdatedGitHubStatusSync(
             final GitHubStatusType gitHubStatusType,
-            final String moduleName,
-            final String prSha,
             final boolean shouldFailOnError) {
-
-        boolean isSuccessful = false;
-        int retryCount = 0;
-
-        while (!isSuccessful && retryCount < 5) {
-            try {
-                isSuccessful = gitHubApiClient.postUpdatedStatus(new GitHubStatus(gitHubStatusType, moduleName), prSha)
-                        .execute()
-                        .isSuccessful();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            retryCount++;
-        }
 
         if (shouldFailOnError && (gitHubStatusType == GitHubStatusType.ERROR || gitHubStatusType == GitHubStatusType.FAILURE)) {
             final String failedMessage = "FAILED One or more violation detectors has found violations.";
