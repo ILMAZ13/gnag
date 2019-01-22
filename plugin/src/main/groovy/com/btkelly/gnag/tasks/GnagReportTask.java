@@ -117,9 +117,7 @@ public class GnagReportTask extends DefaultTask {
     }
 
     private void updatePRStatus(GitHubStatusType gitHubStatusType) {
-        if (StringUtils.isNotBlank(getPRSha())) {
-            gitHubApi.postUpdatedGitHubStatusSync(gitHubStatusType, shouldFailOnError);
-        }
+        gitHubApi.postUpdatedGitHubStatusSync(gitHubStatusType, shouldFailOnError);
     }
 
     private void postViolationComments(@NotNull final Set<Violation> violations) {
