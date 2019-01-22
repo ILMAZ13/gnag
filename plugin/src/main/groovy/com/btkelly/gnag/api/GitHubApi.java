@@ -76,35 +76,32 @@ public class GitHubApi {
                 .enqueue(new DefaultCallback<>());
     }
 
-    public void postUpdatedGitHubStatusAsync(
+    public void postUpdatedGitHubStatusSync(
             final GitHubStatusType gitHubStatusType,
             final String moduleName,
             final String prSha,
             final boolean shouldFailOnError) {
 
-        singleThreadExecutor.execute(() -> {
+        boolean isSuccessful = false;
+        int retryCount = 0;
 
-            boolean isSuccessful = false;
-            int retryCount = 0;
-
-            while (!isSuccessful && retryCount < 5) {
-                try {
-                    isSuccessful = gitHubApiClient.postUpdatedStatus(new GitHubStatus(gitHubStatusType, moduleName), prSha)
-                            .execute()
-                            .isSuccessful();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                retryCount++;
+        while (!isSuccessful && retryCount < 5) {
+            try {
+                isSuccessful = gitHubApiClient.postUpdatedStatus(new GitHubStatus(gitHubStatusType, moduleName), prSha)
+                        .execute()
+                        .isSuccessful();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
 
-            System.out.println("[ILMAZ TESTS] shoudFailOnError = " + shouldFailOnError + " gitHugStatus = " + gitHubStatusType.toString());
-            if (shouldFailOnError && (gitHubStatusType == GitHubStatusType.ERROR || gitHubStatusType == GitHubStatusType.FAILURE)) {
-                final String failedMessage = "One or more violation detectors has found violations.";
-                throw new GradleException(failedMessage);
-            }
-        });
+            retryCount++;
+        }
+
+        System.out.println("[ILMAZ TESTS] shoudFailOnError = " + shouldFailOnError + " gitHugStatus = " + gitHubStatusType.toString());
+        if (shouldFailOnError && (gitHubStatusType == GitHubStatusType.ERROR || gitHubStatusType == GitHubStatusType.FAILURE)) {
+            final String failedMessage = "One or more violation detectors has found violations.";
+            throw new GradleException(failedMessage);
+        }
     }
 
     @NotNull

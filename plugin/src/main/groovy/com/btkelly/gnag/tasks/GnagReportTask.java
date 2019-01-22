@@ -118,7 +118,7 @@ public class GnagReportTask extends DefaultTask {
 
     private void updatePRStatus(GitHubStatusType gitHubStatusType) {
         if (StringUtils.isNotBlank(getPRSha())) {
-            gitHubApi.postUpdatedGitHubStatusAsync(gitHubStatusType, getProject().getName(), getPRSha(), shouldFailOnError);
+            gitHubApi.postUpdatedGitHubStatusSync(gitHubStatusType, getProject().getName(), getPRSha(), shouldFailOnError);
         }
     }
 
