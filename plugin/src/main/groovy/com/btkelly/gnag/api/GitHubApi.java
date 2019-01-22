@@ -97,6 +97,10 @@ public class GitHubApi {
 
                 retryCount++;
             }
+
+            if (gitHubStatusType == GitHubStatusType.ERROR || gitHubStatusType == GitHubStatusType.FAILURE) {
+                throw new RuntimeException("GNAG FAILURE");
+            }
         });
     }
 
