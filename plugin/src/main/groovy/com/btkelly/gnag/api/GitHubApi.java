@@ -99,6 +99,7 @@ public class GitHubApi {
                 retryCount++;
             }
 
+            System.out.println("[ILMAZ TESTS] shoudFailOnError = " + shouldFailOnError + " gitHugStatus = " + gitHubStatusType.toString());
             if (shouldFailOnError && (gitHubStatusType == GitHubStatusType.ERROR || gitHubStatusType == GitHubStatusType.FAILURE)) {
                 final String failedMessage = "One or more violation detectors has found violations.";
                 throw new GradleException(failedMessage);
