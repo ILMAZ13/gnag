@@ -40,7 +40,7 @@ class GnagPlugin implements Plugin<Project> {
             ProjectHelper projectHelper = new ProjectHelper(evaluatedProject)
 
             GnagCheckTask.addTask(projectHelper, gnagPluginExtension)
-            GnagReportTask.addTask(projectHelper, gnagPluginExtension.github)
+            GnagReportTask.addTask(projectHelper, gnagPluginExtension)
         }
     }
 }

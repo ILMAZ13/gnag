@@ -79,7 +79,8 @@ public class GitHubApi {
     public void postUpdatedGitHubStatusAsync(
             final GitHubStatusType gitHubStatusType,
             final String moduleName,
-            final String prSha) {
+            final String prSha,
+            final boolean shouldFailOnError) {
 
         singleThreadExecutor.execute(() -> {
 
@@ -98,8 +99,9 @@ public class GitHubApi {
                 retryCount++;
             }
 
-            if (gitHubStatusType == GitHubStatusType.ERROR || gitHubStatusType == GitHubStatusType.FAILURE) {
-                throw new RuntimeException("GNAG FAILURE");
+            if (shouldFailOnError && (gitHubStatusType == GitHubStatusType.ERROR || gitHubStatusType == GitHubStatusType.FAILURE)) {
+                final String failedMessage = "One or more violation detectors has found violations.";
+                throw new GradleException(failedMessage);
             }
         });
     }

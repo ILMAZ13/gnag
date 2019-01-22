@@ -16,9 +16,8 @@
 package com.btkelly.gnag.tasks;
 
 import com.btkelly.gnag.api.GitHubApi;
-import com.btkelly.gnag.extensions.GitHubExtension;
+import com.btkelly.gnag.extensions.GnagPluginExtension;
 import com.btkelly.gnag.models.*;
-import com.btkelly.gnag.models.GitHubStatusType;
 import com.btkelly.gnag.utils.ProjectHelper;
 import com.btkelly.gnag.utils.ViolationFormatter;
 import com.btkelly.gnag.utils.ViolationsFormatter;
@@ -45,7 +44,7 @@ public class GnagReportTask extends DefaultTask {
     static final String TASK_NAME = "gnagReport";
     private static final String REMOTE_SUCCESS_COMMENT_FORMAT_STRING = "Congrats, no :poop: code found in the **%s** module%s!";
 
-    public static void addTask(ProjectHelper projectHelper, GitHubExtension gitHubExtension) {
+    public static void addTask(ProjectHelper projectHelper, GnagPluginExtension gnagPluginExtension) {
         Map<String, Object> taskOptions = new HashMap<>();
 
         taskOptions.put(Task.TASK_NAME, TASK_NAME);
@@ -58,11 +57,12 @@ public class GnagReportTask extends DefaultTask {
 
         GnagReportTask gnagReportTask = (GnagReportTask) project.task(taskOptions, TASK_NAME);
         gnagReportTask.dependsOn(GnagCheckTask.TASK_NAME);
-        gnagReportTask.setGitHubExtension(gitHubExtension);
+        gnagReportTask.setGnagPluginExtension(gnagPluginExtension);
     }
 
     private boolean commentInline;
     private boolean commentOnSuccess;
+    private boolean shouldFailOnError;
     private GitHubApi gitHubApi;
     private String prSha;
 
@@ -95,10 +95,11 @@ public class GnagReportTask extends DefaultTask {
         }
     }
 
-    private void setGitHubExtension(GitHubExtension gitHubExtension) {
-        commentInline = gitHubExtension.isCommentInline();
-        commentOnSuccess = gitHubExtension.isCommentOnSuccess();
-        gitHubApi = new GitHubApi(gitHubExtension);
+    private void setGnagPluginExtension(GnagPluginExtension gnagPluginExtension) {
+        commentInline = gnagPluginExtension.github.isCommentInline();
+        commentOnSuccess = gnagPluginExtension.github.isCommentOnSuccess();
+        gitHubApi = new GitHubApi(gnagPluginExtension.github);
+        shouldFailOnError = gnagPluginExtension.shouldFailOnError();
     }
 
     private String getPRSha() {
@@ -117,7 +118,7 @@ public class GnagReportTask extends DefaultTask {
 
     private void updatePRStatus(GitHubStatusType gitHubStatusType) {
         if (StringUtils.isNotBlank(getPRSha())) {
-            gitHubApi.postUpdatedGitHubStatusAsync(gitHubStatusType, getProject().getName(), getPRSha());
+            gitHubApi.postUpdatedGitHubStatusAsync(gitHubStatusType, getProject().getName(), getPRSha(), shouldFailOnError);
         }
     }
 
